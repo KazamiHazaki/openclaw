@@ -2,26 +2,27 @@ services:
   openclaw-gateway:
     build:
       context: .
+      dockerfile: Dockerfile
+
+    container_name: openclaw-gateway
+
     environment:
       HOME: /home/node
       TERM: xterm-256color
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+
     volumes:
       - openclaw-config:/home/node/.openclaw
       - openclaw-workspace:/home/node/.openclaw/workspace
+
     init: true
     restart: unless-stopped
-    command:
-      [
-        "node",
-        "dist/index.js",
-        "gateway",
-        "--bind",
-        "loopback",
-        "--port",
-        "18789","--allow-unconfigured"
-      ]
+
+    # IMPORTANT:
+    # Do NOT override command if already defined in Dockerfile.
+    # Let Dockerfile CMD handle runtime permission fix.
+    
 volumes:
   openclaw-config:
   openclaw-workspace:
