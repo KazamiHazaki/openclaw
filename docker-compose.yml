@@ -20,7 +20,7 @@ services:
         "--bind",
         "localhost",
         "--port",
-        "18789",
+        "18789","--allow-unconfigured"
       ]
 volumes:
   openclaw-config:
