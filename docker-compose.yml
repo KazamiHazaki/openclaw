@@ -1,7 +1,10 @@
 services:
   openclaw-gateway:
-    image: ${OPENCLAW_IMAGE:-openclaw:local}
-    env_file: .env
+    image: ${OPENCLAW_IMAGE}
+    container_name: openclaw-gateway
+    restart: unless-stopped
+    init: true
+
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -9,28 +12,29 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+      OPENCLAW_GATEWAY_BIND: ${OPENCLAW_GATEWAY_BIND}
+
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+
     ports:
-      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
-      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
-    init: true
-    restart: unless-stopped
-    command:
-      [
-        "node",
-        "dist/index.js",
-        "gateway",
-        "--bind",
-        "${OPENCLAW_GATEWAY_BIND:-lan}",
-        "--port",
-        "18789",
-      ]
+      - ${OPENCLAW_GATEWAY_PORT}:18789
+      - ${OPENCLAW_BRIDGE_PORT}:18790
+
+    command: >
+      node dist/index.js gateway
+      --bind ${OPENCLAW_GATEWAY_BIND}
+      --port 18789
+
 
   openclaw-cli:
-    image: ${OPENCLAW_IMAGE:-openclaw:local}
-    env_file: .env
+    image: ${OPENCLAW_IMAGE}
+    container_name: openclaw-cli
+    init: true
+    stdin_open: true
+    tty: true
+
     environment:
       HOME: /home/node
       TERM: xterm-256color
@@ -39,10 +43,9 @@ services:
       CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY}
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE}
+
     volumes:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
-    stdin_open: true
-    tty: true
-    init: true
-    entrypoint: ["node", "dist/index.js"]
+
+    entrypoint: node dist/index.js
