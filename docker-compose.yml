@@ -18,7 +18,7 @@ services:
         "dist/index.js",
         "gateway",
         "--bind",
-        "localhost",
+        "loopback",
         "--port",
         "18789","--allow-unconfigured"
       ]
